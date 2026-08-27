@@ -720,9 +720,11 @@
   place-items:center;
 }
 
-.brandIcon_list svg{
+.brandIcon_list img{
+  display: block;
   width: 22px;
   height: 22px;
+  object-fit: contain;
 }
 
 .brandText_list{

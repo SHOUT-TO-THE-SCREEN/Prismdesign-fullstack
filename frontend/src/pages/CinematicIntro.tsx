@@ -63,7 +63,9 @@ export default function CinematicIntro() {
         <div className="ci-navInner">
           <div className="ci-brand">
             <div className="ci-logo">
+              <img src="/prismdesign-logo.png" alt="" />
               <svg
+                style={{ display: "none" }}
                 fill="none"
                 viewBox="0 0 48 48"
                 xmlns="http://www.w3.org/2000/svg"
@@ -342,7 +344,6 @@ export default function CinematicIntro() {
                       <span className="dot" />
                       <span>System Status: Active</span>
                     </div>
-                    <span className="perfFps">FPS: 60.0</span>
                   </div>
 
                   <div className="perfBar">

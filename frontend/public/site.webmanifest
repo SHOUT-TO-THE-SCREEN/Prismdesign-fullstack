@@ -1,0 +1,17 @@
+{
+  "name": "PrismDesign",
+  "short_name": "PrismDesign",
+  "description": "A node-based visual programming studio for interactive real-time graphics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080914",
+  "theme_color": "#080914",
+  "icons": [
+    {
+      "src": "/prismdesign-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

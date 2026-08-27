@@ -15,7 +15,6 @@ export default function ViewerPane({ placement = "background" }: Props) {
   const viewerPinnedNodeId = useStudioStore((s) => s.viewerPinnedNodeId);
   const viewerMode = useStudioStore((s) => s.viewerMode);
   const viewerOpacity = useStudioStore((s) => s.viewerOpacity);
-  const viewerFps = useStudioStore((s) => s.viewerFps);
 
   const toggleViewer = useStudioStore((s) => s.toggleViewer);
   const pinViewerToNode = useStudioStore((s) => s.pinViewerToNode);
@@ -106,7 +105,6 @@ export default function ViewerPane({ placement = "background" }: Props) {
     >
       <div className="viewerBackdrop__row">
         <span className="viewerBackdrop__title">{title}</span>
-        <span className="viewerBackdrop__pill">FPS {viewerFps}</span>
 
         <div className="viewerBackdrop__sep" />
 

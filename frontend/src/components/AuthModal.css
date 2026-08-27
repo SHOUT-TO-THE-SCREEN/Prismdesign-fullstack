@@ -31,9 +31,10 @@
 }
 
 .authModal__brandIcon {
+  display: block;
   width: 26px;
   height: 26px;
-  color: #3713ec;
+  object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(55, 19, 236, 0.7));
 }
 

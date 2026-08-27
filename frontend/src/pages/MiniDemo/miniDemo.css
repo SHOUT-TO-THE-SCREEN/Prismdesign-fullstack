@@ -104,6 +104,8 @@
   box-shadow: 0 0 50px -12px rgba(55, 19, 236, 0.22);
   aspect-ratio: 16 / 9;
   min-height: 380px;
+  max-width: 800px;
+
 }
 
 .mdCanvas {
