@@ -376,25 +376,19 @@ export default function CinematicIntro() {
 
           <div className="ci-footerCols reveal reveal--d1">
             <div className="ci-col">
-              <h4>Product</h4>
-              <a href="#">Download</a>
-              <a href="#">Licensing</a>
-              <a href="#">Release Notes</a>
+              <h4>github</h4>
+              <a href="https://github.com/SHOUT-TO-THE-SCREEN/Prismdesign-fullstack" target="_blank" rel="noopener noreferrer">
+                PrismDesign
+              </a>
+              <a href="https://github.com/ppsssj" target="_blank" rel="noopener noreferrer">
+                ppsssj
+              </a>
+              <a href="https://github.com/shindonghwagit" target="_blank" rel="noopener noreferrer">
+                shindonghwagit
+              </a>
             </div>
 
-            <div className="ci-col">
-              <h4>Learn</h4>
-              <a href="#">Documentation</a>
-              <a href="#">Tutorials</a>
-              <a href="#">Forum</a>
-            </div>
-
-            <div className="ci-col">
-              <h4>Company</h4>
-              <a href="#">About</a>
-              <a href="#">Careers</a>
-              <a href="#">Contact</a>
-            </div>
+            
           </div>
         </div>
 

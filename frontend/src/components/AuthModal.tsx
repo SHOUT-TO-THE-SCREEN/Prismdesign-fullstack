@@ -102,25 +102,25 @@ export default function AuthModal({ open, onClose }: Props) {
             className={`authModal__tab ${tab === "login" ? "isActive" : ""}`}
             onClick={() => setTab("login")}
           >
-            로그인
+            Login
           </button>
           <button
             className={`authModal__tab ${tab === "register" ? "isActive" : ""}`}
             onClick={() => setTab("register")}
           >
-            회원가입
+            Register
           </button>
         </div>
 
         <form className="authModal__form" onSubmit={handleSubmit}>
           {tab === "register" && (
             <label className="authModal__field">
-              <span>이름</span>
+              <span>Name</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="홍길동"
+                placeholder="John Doe"
                 required
                 autoComplete="name"
               />
@@ -128,7 +128,7 @@ export default function AuthModal({ open, onClose }: Props) {
           )}
 
           <label className="authModal__field">
-            <span>이메일</span>
+            <span>Email</span>
             <input
               type="email"
               value={email}
@@ -140,12 +140,12 @@ export default function AuthModal({ open, onClose }: Props) {
           </label>
 
           <label className="authModal__field">
-            <span>비밀번호</span>
+            <span>Password</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={tab === "register" ? "6자 이상" : "••••••"}
+              placeholder={tab === "register" ? "6 characters or more" : "••••••"}
               required
               autoComplete={tab === "login" ? "current-password" : "new-password"}
             />
@@ -154,7 +154,7 @@ export default function AuthModal({ open, onClose }: Props) {
           {error && <p className="authModal__error">{error}</p>}
 
           <button className="authModal__submit" type="submit" disabled={loading}>
-            {loading ? "처리 중…" : tab === "login" ? "로그인" : "가입하기"}
+            {loading ? "Processing…" : tab === "login" ? "Login" : "Register"}
           </button>
         </form>
       </div>
