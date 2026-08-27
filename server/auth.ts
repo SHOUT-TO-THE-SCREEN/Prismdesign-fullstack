@@ -1,108 +1,114 @@
 import { Router } from "express";
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { config } from "./config.js";
+import { createUser, findUserByEmail, type UserRecord } from "./db/users.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const USERS_FILE = path.join(__dirname, "users.json");
-const JWT_SECRET = process.env.JWT_SECRET ?? "prismdesign-dev-secret";
 const JWT_EXPIRES = "7d";
 
-type User = { id: string; email: string; passwordHash: string; name: string };
 type PublicUser = { id: string; email: string; name: string };
 
-async function readUsers(): Promise<User[]> {
-  try {
-    return JSON.parse(await fs.readFile(USERS_FILE, "utf-8"));
-  } catch {
-    return [];
-  }
+function toPublic(user: UserRecord): PublicUser {
+  return { id: user.id, email: user.email, name: user.name };
 }
 
-async function writeUsers(users: User[]): Promise<void> {
-  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
-}
-
-function toPublic(u: User): PublicUser {
-  return { id: u.id, email: u.email, name: u.name };
+function isUniqueViolation(error: unknown): boolean {
+  return Boolean(
+    error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "23505",
+  );
 }
 
 const router = Router();
 
-// ─── 회원가입 ──────────────────────────────────────────────────────────────
-router.post("/register", async (req, res) => {
-  const { email, password, name } = req.body as {
+router.post("/register", async (req, res, next) => {
+  const { email, password, name } = req.body as Partial<{
     email: string;
     password: string;
     name: string;
-  };
+  }>;
 
-  if (!email?.trim() || !password || !name?.trim()) {
-    res.status(400).json({ error: "이메일, 비밀번호, 이름이 필요합니다" });
+  const normalizedEmail = email?.toLowerCase().trim();
+  const normalizedName = name?.trim();
+  if (!normalizedEmail || !password || !normalizedName) {
+    res.status(400).json({ error: "Email, password and name are required" });
     return;
   }
-  if (password.length < 6) {
-    res.status(400).json({ error: "비밀번호는 6자 이상이어야 합니다" });
+  if (password.length < 6 || password.length > 128) {
+    res.status(400).json({ error: "Password must contain 6 to 128 characters" });
     return;
   }
-
-  const users = await readUsers();
-  if (users.find((u) => u.email === email.toLowerCase().trim())) {
-    res.status(409).json({ error: "이미 사용 중인 이메일입니다" });
-    return;
-  }
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user: User = {
-    id: crypto.randomUUID(),
-    email: email.toLowerCase().trim(),
-    passwordHash,
-    name: name.trim(),
-  };
-
-  users.push(user);
-  await writeUsers(users);
-
-  const token = jwt.sign(toPublic(user), JWT_SECRET, { expiresIn: JWT_EXPIRES });
-  res.json({ token, user: toPublic(user) });
-});
-
-// ─── 로그인 ───────────────────────────────────────────────────────────────
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body as { email: string; password: string };
-
-  if (!email || !password) {
-    res.status(400).json({ error: "이메일과 비밀번호가 필요합니다" });
-    return;
-  }
-
-  const users = await readUsers();
-  const user = users.find((u) => u.email === email.toLowerCase().trim());
-
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-    res.status(401).json({ error: "이메일 또는 비밀번호가 올바르지 않습니다" });
-    return;
-  }
-
-  const token = jwt.sign(toPublic(user), JWT_SECRET, { expiresIn: JWT_EXPIRES });
-  res.json({ token, user: toPublic(user) });
-});
-
-// ─── 토큰 검증 (/me) ──────────────────────────────────────────────────────
-router.get("/me", (req, res) => {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer ")) {
-    res.status(401).json({ error: "인증이 필요합니다" });
+  if (normalizedEmail.length > 254 || normalizedName.length > 100) {
+    res.status(400).json({ error: "Email or name is too long" });
     return;
   }
 
   try {
-    const payload = jwt.verify(auth.slice(7), JWT_SECRET) as PublicUser;
+    if (await findUserByEmail(normalizedEmail)) {
+      res.status(409).json({ error: "Email is already in use" });
+      return;
+    }
+
+    const user = await createUser({
+      email: normalizedEmail,
+      passwordHash: await bcrypt.hash(password, 10),
+      name: normalizedName,
+    });
+    const publicUser = toPublic(user);
+    const token = jwt.sign(publicUser, config.jwtSecret, { expiresIn: JWT_EXPIRES });
+    res.status(201).json({ token, user: publicUser });
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      res.status(409).json({ error: "Email is already in use" });
+      return;
+    }
+    next(error);
+  }
+});
+
+router.post("/login", async (req, res, next) => {
+  const { email, password } = req.body as Partial<{
+    email: string;
+    password: string;
+  }>;
+
+  if (!email || !password) {
+    res.status(400).json({ error: "Email and password are required" });
+    return;
+  }
+
+  try {
+    const user = await findUserByEmail(email.toLowerCase().trim());
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
+    }
+
+    const publicUser = toPublic(user);
+    const token = jwt.sign(publicUser, config.jwtSecret, { expiresIn: JWT_EXPIRES });
+    res.json({ token, user: publicUser });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/me", (req, res) => {
+  const authorization = req.headers.authorization;
+  if (!authorization?.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Authentication required" });
+    return;
+  }
+
+  try {
+    const payload = jwt.verify(
+      authorization.slice(7),
+      config.jwtSecret,
+    ) as PublicUser;
     res.json({ id: payload.id, email: payload.email, name: payload.name });
   } catch {
-    res.status(401).json({ error: "유효하지 않은 토큰입니다" });
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 });
 

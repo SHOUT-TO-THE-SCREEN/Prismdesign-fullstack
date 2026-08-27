@@ -21,6 +21,7 @@ type AudioState = {
 let audioState: AudioState | null = null;
 let audioInitPromise: Promise<AudioState> | null = null;
 let initInFlight = false;
+let audioInitFailed = false;
 let evalInFlight = false;
 async function initAudio(channelMode: "mono" | "stereo"): Promise<AudioState> {
   if (audioState) return audioState;
@@ -96,7 +97,7 @@ function downsample(
 }
 
 export async function evalAudioIn(
-  nodeId: string,
+  _nodeId: string,
   p: AudioInParams,
 ): Promise<Chop> {
   const numSamples = Math.max(0, Math.floor(p.numSamples ?? 256));
@@ -115,12 +116,12 @@ export async function evalAudioIn(
 
   // 파형 읽기
   st.analyserL.getFloatTimeDomainData(st.tmpL);
-  let l = downsample(st.tmpL, numSamples);
+  const l = downsample(st.tmpL, numSamples);
   for (let i = 0; i < l.length; i++) l[i] *= gain;
 
   if (channelMode === "stereo" && st.analyserR && st.tmpR) {
     st.analyserR.getFloatTimeDomainData(st.tmpR);
-    let r = downsample(st.tmpR, numSamples);
+    const r = downsample(st.tmpR, numSamples);
     for (let i = 0; i < r.length; i++) r[i] *= gain;
 
     const out = makeChop(2, numSamples, st.ctx.sampleRate);
@@ -143,7 +144,7 @@ export function evalAudioInSync(nodeId: string, p: AudioInParams): Chop {
   // 최초 몇 프레임은 초기화 전이므로 빈 CHOP 반환
   if (!audioState) {
     // init은 중복 호출 방지
-    if (!initInFlight) {
+    if (!initInFlight && !audioInitFailed) {
       initInFlight = true;
       initAudio(mode)
         .then(async () => {
@@ -153,6 +154,10 @@ export function evalAudioInSync(nodeId: string, p: AudioInParams): Chop {
           } catch {
             // ignore
           }
+        })
+        .catch(() => {
+          audioInitFailed = true;
+          audioInitPromise = null;
         })
         .finally(() => {
           initInFlight = false;

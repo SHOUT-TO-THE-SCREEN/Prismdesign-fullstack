@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { apiUrl } from "../lib/api";
 import "./AuthModal.css";
 
 type Tab = "login" | "register";
@@ -51,7 +52,7 @@ export default function AuthModal({ open, onClose }: Props) {
         : { email, password, name };
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetch(apiUrl(endpoint), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

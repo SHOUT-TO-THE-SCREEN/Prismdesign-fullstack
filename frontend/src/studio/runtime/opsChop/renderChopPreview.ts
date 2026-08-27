@@ -99,7 +99,7 @@ function safe(v: number) {
   return Number.isFinite(v) ? v : 0;
 }
 
-function drawTable(ctx: CanvasRenderingContext2D, chop: Chop, w: number, h: number) {
+function drawTable(ctx: CanvasRenderingContext2D, chop: Chop, _w: number, _h: number) {
   // ✅ 노드 프리뷰는 tx/ty만
   const labels = ["tx", "ty"];
   const idxMap = [0, 1];

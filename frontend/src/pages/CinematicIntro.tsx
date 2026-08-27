@@ -11,8 +11,6 @@ export default function CinematicIntro() {
   const { user, logout } = useAuthStore();
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const goVisualizer = () => navigate("/list");
-
   // Hero parallax + scroll progress
   useEffect(() => {
     const onScroll = () => {

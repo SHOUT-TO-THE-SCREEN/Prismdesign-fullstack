@@ -30,7 +30,7 @@ export function evalMath(inChop: Chop, p: MathParams): Chop {
 
       // Range (tab이 range일 때만 적용하게 하면 TD 느낌)
       if (p.tab === "range") {
-        let t = (v - fromA) * inv;         // 0..1
+        const t = (v - fromA) * inv;       // 0..1
         let r = toA + (toB - toA) * t;
 
         if (p.clamp) {

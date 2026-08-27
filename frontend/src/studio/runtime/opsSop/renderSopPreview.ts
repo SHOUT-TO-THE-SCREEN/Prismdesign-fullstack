@@ -102,10 +102,8 @@ export function renderSopPreview(
     const z = (az + bz + ccz) / 3;
 
     // ── Face normal via cross product (for back-face culling) ───────────────
-    const eABx = bx - ax, eABy = by - ay, eABz = bz - az;
-    const eACx = ccx - ax, eACy = ccy - ay, eACz = ccz - az;
-    const fnx = eABy * eACz - eABz * eACy;
-    const fny = eABz * eACx - eABx * eACz;
+    const eABx = bx - ax, eABy = by - ay;
+    const eACx = ccx - ax, eACy = ccy - ay;
     const fnz = eABx * eACy - eABy * eACx;
 
     // Back-face cull: face normal Z < 0 means back face (camera along +Z)

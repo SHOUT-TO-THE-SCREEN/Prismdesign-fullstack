@@ -1,8 +1,6 @@
 import type { TopOpEval } from "../typesRuntime";
 import { ensureCanvas, get2d } from "../canvas";
 
-const clamp255 = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
-
 export const evalLookup: TopOpEval = ({ nodeId, params, ctx, evalTOP, inputMap }) => {
   // 입력 2개: src(0/in), lut(1)
   const srcId = inputMap[nodeId]?.["in"] ?? inputMap[nodeId]?.["0"];

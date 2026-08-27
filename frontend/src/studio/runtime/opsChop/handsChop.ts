@@ -34,6 +34,7 @@ let videoEl: HTMLVideoElement | null = null;
 let stream: MediaStream | null = null;
 let lastOut: Chop | null = null;
 let initInFlight = false;
+let initFailed = false;
 let lastTimestamp = -1;
 
 type LandmarkPoint = { x: number; y: number };
@@ -70,10 +71,14 @@ export function evalHandsChopSync(_nodeId: string, p: HandsChopParams): Chop {
 
   // Not ready yet — kick off init once
   if (!landmarker || !videoEl) {
-    if (!initInFlight) {
+    if (!initInFlight && !initFailed) {
       initInFlight = true;
       initHands()
-        .catch(() => { /* user denied camera or model failed to load */ })
+        .catch(() => {
+          initFailed = true; // Permission denial or CDN failure: keep a zeroed CHOP.
+          try { landmarker?.close(); } catch {}
+          landmarker = null;
+        })
         .finally(() => { initInFlight = false; });
     }
     return lastOut ?? fallback;
@@ -177,5 +182,6 @@ export function cleanupHandsChop(): void {
   stream = null;
   lastOut = null;
   initInFlight = false;
+  initFailed = false;
   lastTimestamp = -1;
 }

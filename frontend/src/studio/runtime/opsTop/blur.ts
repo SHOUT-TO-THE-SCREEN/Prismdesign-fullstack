@@ -1,8 +1,6 @@
 import type { TopOpEval } from "../typesRuntime";
 import { ensureCanvas, get2d } from "../canvas";
 
-const clamp255 = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
-
 function boxBlur1D(src: Uint8ClampedArray, dst: Uint8ClampedArray, w: number, h: number, radius: number, horizontal: boolean) {
   const channels = 4;
   const window = radius * 2 + 1;
@@ -10,7 +8,7 @@ function boxBlur1D(src: Uint8ClampedArray, dst: Uint8ClampedArray, w: number, h:
   if (horizontal) {
     for (let y = 0; y < h; y++) {
       // 누적합(슬라이딩 윈도우)
-      let sum = [0, 0, 0, 0];
+      const sum = [0, 0, 0, 0];
       for (let x = -radius; x <= radius; x++) {
         const xx = Math.max(0, Math.min(w - 1, x));
         const i = (y * w + xx) * channels;
@@ -41,7 +39,7 @@ function boxBlur1D(src: Uint8ClampedArray, dst: Uint8ClampedArray, w: number, h:
     }
   } else {
     for (let x = 0; x < w; x++) {
-      let sum = [0, 0, 0, 0];
+      const sum = [0, 0, 0, 0];
       for (let y = -radius; y <= radius; y++) {
         const yy = Math.max(0, Math.min(h - 1, y));
         const i = (yy * w + x) * channels;

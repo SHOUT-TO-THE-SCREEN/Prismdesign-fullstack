@@ -261,6 +261,10 @@ npm run dev
 
 ## Graph Storage
 
+> **Production update:** The Express API now stores users and graphs in
+> Supabase PostgreSQL. The local `users.json` and `server/graphs/` description
+> below is historical and no longer applies to the current server code.
+
 그래프는 로컬 JSON 파일로 저장됩니다.
 
 - 저장 위치: `server/graphs/`
@@ -306,7 +310,16 @@ npm run dev
 
 ## Documentation
 
+- [Production deployment guide](DEPLOYMENT.md) - Vercel, Render, and Supabase
+
 - [server/README.md](server/README.md) — 서버 API 및 실행 방법
+
+---
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the database schema, environment
+variables, platform settings, and production smoke-test checklist.
 
 ---
 
